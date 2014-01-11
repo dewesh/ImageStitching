@@ -217,7 +217,7 @@ Mat GetEdgeScheleton(char* imgPath){
 }
 
 vector<edge> GetCurvature(Mat temp,int k){
-	vector<edge> edges;
+	vector<edge> edges; 
 	vector<point> junction_pts;
 
 	junction_pts = Tool::getInstance()->getJunctionPoints(temp,BWThreshold); //TODO : return the junction point obtained here
