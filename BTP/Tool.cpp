@@ -384,16 +384,6 @@ vector<edge> Tool::calculateCurvature(int k,vector<edge> edges){
 			}
 			//printf("%d",val);
 			edges[i].points[j].curvature=val; //devide by k if you need exact curvature value
-			/*
-			if(val==0)
-			{
-			temp.at<uchar>(edges[i].points[j].x,edges[i].points[j].y) = 1;
-			}
-			else
-			{
-			temp.at<uchar>(edges[i].points[j].x,edges[i].points[j].y) = (float)val*255.0/k;
-			}
-			*/
 		}
 		//printf("\n");
 	}
@@ -491,7 +481,7 @@ edge Tool::getCircularCurve(Mat img, int threshold, int i, int j){
 	tempEdge.points.push_back(b);
 	tempEdge.x1 = b.x;
 	tempEdge.y1 = b.y;
-	
+
 	while(b0.x != b.x || b0.y !=b.y){
 		for( t = 0 ; t < 8 ; t++ ){
 			t1 = t + c.chainCode + 1 ;
@@ -502,7 +492,7 @@ edge Tool::getCircularCurve(Mat img, int threshold, int i, int j){
 				temp.chainCode = t1;
 				c.x = arr[(t1+7)%8][0] + b.x;
 				c.y = arr[(t1+7)%8][1] + b.y;
-				
+
 				c.chainCode = (temp.chainCode + 5) % 8; // with respect to b1
 				b = temp;
 				break;

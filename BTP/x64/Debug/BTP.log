@@ -1,4 +1,4 @@
-﻿Build started 1/15/2014 1:31:22 AM.
+﻿Build started 1/15/2014 2:59:50 AM.
      1>Project "C:\Users\deweshiitkgp\documents\visual studio 2010\Projects\BTP\BTP\BTP.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "x64\Debug\BTP.unsuccessfulbuild" because "AlwaysCreate" was specified.
@@ -8,10 +8,12 @@
          BTP.cpp
      1>C:\OpenCV2.3\build\include\opencv2/flann/logger.h(70): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(234) : see declaration of 'fopen'
-     1>BTP.cpp(367): warning C4305: 'initializing' : truncation from 'double' to 'float'
-     1>BTP.cpp(372): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>BTP.cpp(373): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>BTP.cpp(422): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>BTP.cpp(280): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+     1>BTP.cpp(281): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+     1>BTP.cpp(359): warning C4305: 'initializing' : truncation from 'double' to 'float'
+     1>BTP.cpp(364): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>BTP.cpp(365): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
+     1>BTP.cpp(417): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(304) : see declaration of 'scanf'
        ResourceCompile:
          All outputs are up-to-date.
@@ -40,4 +42,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:04.16
+Time Elapsed 00:00:07.96
