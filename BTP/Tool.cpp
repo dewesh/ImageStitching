@@ -222,7 +222,7 @@ vector<point> Tool::getJunctionPoints(Mat img,int BWThreshold){
 }
 
 Mat Tool::removePoints(Mat img,vector<point> points,int WHITE_VAL){
-	printf("removing junction points::\n");
+	//printf("removing junction points::\n");
 	for each(point tempPoint in points){
 		img.at<uchar>(tempPoint.x,tempPoint.y) = WHITE_VAL;
 	}

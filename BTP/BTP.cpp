@@ -100,7 +100,6 @@ vector<edge> removeSmallCurves(int th, Mat img,vector<edge> edges){
 				n=Tool::getInstance()->getTotalNeighbours(i,j,img,BWThreshold);
 				if(n==1)
 				{
-						printf("ldol");
 					//start traversing path
 					tempEdge.x1=i;
 					tempEdge.y1=j;
@@ -176,7 +175,7 @@ endofloop1:;
 		}
 
 	}
-	printf("lol");
+	//printf("lol");
 	// loop for circular path detection can be optimised and merged with the main loop and can be determined in one go
 	for(i=2;i<img.rows-2;i++) 
 	{
@@ -184,23 +183,22 @@ endofloop1:;
 		{
 			if(img.at<uchar>(i,j) > BWThreshold && temp.at<uchar>(i,j) < BWThreshold)
 			{
-				n=Tool::getInstance()->getTotalNeighbours(i,j,img,BWThreshold);
+				n=Tool::getInstance()->getTotalNeighbours(i,j,img-temp,BWThreshold);
 				if(n==2)
 				{	
-					tempEdge.x1=i;
-					tempEdge.y1=j;
 					tempEdge.points.clear();
 					//todo: get circular path and store in tempedge
 					tempEdge = Tool::getInstance()->getCircularCurve(img,BWThreshold,i,j);
-					if(tempEdge.points.size() > curveLenThreshold/1.5)
+					totalEdges++;
+					if(tempEdge.points.size() > curveLenThreshold)
 					{
 						edges.push_back(tempEdge);
-
+						temp = Tool::getInstance()->removePoints(temp,tempEdge.points,255);
 					}
 					else
 					{
 						img = Tool::getInstance()->removeCurve(tempEdge,img);
-						temp = Tool::getInstance()->removePoints(temp,tempEdge.points,0);
+						
 					}
 				}
 			}
@@ -389,7 +387,7 @@ int main()
 	Tool::getInstance()->PlotImage(imgPath1, outputPath1, points1,5);
 
 	// right image
-	tempImage = GetEdgeScheleton(imgPath1); 
+	tempImage = GetEdgeScheleton(imgPath2); 
 	
 	vector<point> junction_pts2;
 	junction_pts2 = Tool::getInstance()->getJunctionPoints(tempImage,BWThreshold); // set 1  of new feature points
@@ -401,7 +399,7 @@ int main()
 	points2 = StructureSort(points2);
 	Tool::getInstance()->PlotImage(imgPath2, outputPath2, points2,5);
 
-	printf("size of 1st pointset :%d\nsize of second point set :%d\n ",points1.size(),points2.size());
+	printf("size of 1st pointset :%d\nsize of 2nd point set :%d\n ",points1.size()+junction_pts1.size(),points2.size()+junction_pts1.size());
 	
 	staples = getStaples(points1,points2);
 	printf("done with %d\n",staples[0].NumOfMatch);
