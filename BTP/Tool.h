@@ -16,7 +16,7 @@ public:
 	static Tool* getInstance();
 	int getChainCode(int , int);
 	Mat thinEdges_std(Mat);
-	Mat removeJunctionPoints(Mat ,vector<point>,int );
+	Mat removePoints(Mat ,vector<point>,int );
 	vector<point> getJunctionPoints(Mat ,int );
 
 	Mat CannyThreshold(Mat ,int ,int ,int ,int );
@@ -31,6 +31,7 @@ public:
 	Mat removeCurve(edge tempEdge, Mat temp);
 	template <class T, class U>
 	int approxComp (T, T, U );
+	edge getCircularCurve(Mat, int, int, int);
 	~Tool();
 };
 

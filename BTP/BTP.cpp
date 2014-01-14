@@ -100,10 +100,19 @@ vector<edge> removeSmallCurves(int th, Mat img,vector<edge> edges){
 				n=Tool::getInstance()->getTotalNeighbours(i,j,img,BWThreshold);
 				if(n==1)
 				{
+						printf("ldol");
 					//start traversing path
 					tempEdge.x1=i;
 					tempEdge.y1=j;
+					
+					tempPoint.x = i;
+					tempPoint.y = j;
+					tempPoint.chainCode = 0;
+
 					tempEdge.points.clear();
+					tempEdge.Type = 1;
+					tempEdge.points.push_back(tempPoint);
+
 					temp.at<uchar>(i,j)=255;
 					i1=i;
 					j1=j;
@@ -167,23 +176,36 @@ endofloop1:;
 		}
 
 	}
-
-	for(i=2;i<img.rows-2;i++)
+	printf("lol");
+	// loop for circular path detection can be optimised and merged with the main loop and can be determined in one go
+	for(i=2;i<img.rows-2;i++) 
 	{
 		for(j=2;j<img.cols-2;j++)
 		{
-			if(img.at<uchar>(i,j) > BWThreshold && temp.at<uchar>(i,j) < BWThreshold )
+			if(img.at<uchar>(i,j) > BWThreshold && temp.at<uchar>(i,j) < BWThreshold)
 			{
 				n=Tool::getInstance()->getTotalNeighbours(i,j,img,BWThreshold);
 				if(n==2)
-				{
-					printf("LOL");
+				{	
+					tempEdge.x1=i;
+					tempEdge.y1=j;
+					tempEdge.points.clear();
+					//todo: get circular path and store in tempedge
+					tempEdge = Tool::getInstance()->getCircularCurve(img,BWThreshold,i,j);
+					if(tempEdge.points.size() > curveLenThreshold/1.5)
+					{
+						edges.push_back(tempEdge);
+
+					}
+					else
+					{
+						img = Tool::getInstance()->removeCurve(tempEdge,img);
+						temp = Tool::getInstance()->removePoints(temp,tempEdge.points,0);
+					}
 				}
 			}
 		}
 	}
-
-
 
 	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved_temp1.png",temp);
 	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved_img.png",img);
@@ -217,11 +239,11 @@ Mat GetEdgeScheleton(char* imgPath){
 }
 
 vector<edge> GetCurvature(Mat temp,int k){
-	vector<edge> edges; 
+	vector<edge> edges;  
 	vector<point> junction_pts;
 
 	junction_pts = Tool::getInstance()->getJunctionPoints(temp,BWThreshold); //TODO : return the junction point obtained here
-	temp = Tool::getInstance()->removeJunctionPoints(temp,junction_pts,0);
+	temp = Tool::getInstance()->removePoints(temp,junction_pts,0);
 	
 	//edges = extractCurves(temp);
 
@@ -314,9 +336,7 @@ vector<staple> getStaples(vector<point> points1, vector<point> points2)
 						}
 						staples.push_back(tempStaple);
 						//printf("%d ,", tempStaple.NumOfMatch);
-						//cv::line(src_l, Point(points1[i].y,points1[i].x), Point(points1[j].y,points1[j].x), Scalar( 0, 0, 255 ), 1, 8,0);
-						//cv::line(src_r, Point(points2[m].y,points2[m].x), Point(points2[n].y,points2[n].x), Scalar( 0, 0, 255 ), 1, 8,0);
-						if(staples.size() >= 5000)
+						if(staples.size() >= 500)
 						{
 							goto hehe;
 						}
@@ -356,7 +376,11 @@ int main()
 
 	//left image 
 	Mat tempImage;
-	tempImage = GetEdgeScheleton(imgPath1); 
+	tempImage = GetEdgeScheleton(imgPath1);
+
+	vector<point> junction_pts1;
+	junction_pts1 = Tool::getInstance()->getJunctionPoints(tempImage,BWThreshold); // set 1  of new feature points
+	
 	edges1 = GetCurvature(tempImage,k);	// k =30
 	points1 = Tool::getInstance()->GetLocalMaxima(edges1,5,k); 
 	printf("pts: %d\n",points1.size());
@@ -366,6 +390,10 @@ int main()
 
 	// right image
 	tempImage = GetEdgeScheleton(imgPath1); 
+	
+	vector<point> junction_pts2;
+	junction_pts2 = Tool::getInstance()->getJunctionPoints(tempImage,BWThreshold); // set 1  of new feature points
+	
 	edges2 = GetCurvature(tempImage,k);	// k =30
 	points2 = Tool::getInstance()->GetLocalMaxima(edges2,5,k);
 	printf("pts: %d\n",points2.size());

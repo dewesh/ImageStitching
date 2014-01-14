@@ -221,7 +221,7 @@ vector<point> Tool::getJunctionPoints(Mat img,int BWThreshold){
 	return points;
 }
 
-Mat Tool::removeJunctionPoints(Mat img,vector<point> points,int WHITE_VAL){
+Mat Tool::removePoints(Mat img,vector<point> points,int WHITE_VAL){
 	printf("removing junction points::\n");
 	for each(point tempPoint in points){
 		img.at<uchar>(tempPoint.x,tempPoint.y) = WHITE_VAL;
@@ -458,4 +458,60 @@ Mat Tool::removeCurve(edge tempEdge, Mat temp){
 	}
 	temp.at<uchar>(i2,j2)=0;
 	return temp;
+}
+
+edge Tool::getCircularCurve(Mat img, int threshold, int i, int j){
+	edge tempEdge;
+	tempEdge.Type = 0;
+	int arr[8][2] = { {1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1},{0,1},{1,1}};
+	point b0,b1,c0,c1,temp,b,c;
+	b0.x = i;
+	b0.y = j;
+	c0.x = i-1;
+	c0.y = j;
+	b0.chainCode = 2; // to be updated  at end
+	int t,t1;
+	for( t = 0 ; t < 8 ; t++ ){
+		t1 = t + b0.chainCode ;
+		t1= t1 % 8;
+		temp.x = arr[t1][0] + i;
+		temp.y = arr[t1][1] + j;
+		temp.chainCode = t1;
+		if(img.at<uchar>(temp.x,temp.y) > threshold){
+			b1 = temp;
+			c1.x = arr[(t1+7)%8][0] + i;
+			c1.y = arr[(t1+7)%8][1] + j;
+			c1.chainCode = (b1.chainCode + 5) % 8; // with respect to b1
+			break;
+		}
+	}
+
+	b=b1;
+	c=c1;
+	tempEdge.points.push_back(b);
+	tempEdge.x1 = b.x;
+	tempEdge.y1 = b.y;
+	
+	while(b0.x != b.x || b0.y !=b.y){
+		for( t = 0 ; t < 8 ; t++ ){
+			t1 = t + c.chainCode + 1 ;
+			t1= t1 % 8;
+			temp.x = arr[t1][0] + b.x;
+			temp.y = arr[t1][1] + b.y;
+			if(img.at<uchar>(temp.x,temp.y) > threshold){
+				temp.chainCode = t1;
+				c.x = arr[(t1+7)%8][0] + b.x;
+				c.y = arr[(t1+7)%8][1] + b.y;
+				
+				c.chainCode = (temp.chainCode + 5) % 8; // with respect to b1
+				b = temp;
+				break;
+			}
+		}
+		tempEdge.points.push_back(b);
+	}
+	tempEdge.x2 = b.x;
+	tempEdge.y2 = b.y;
+
+	return tempEdge;
 }
