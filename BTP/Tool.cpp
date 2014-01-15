@@ -416,16 +416,16 @@ vector<point> Tool::removeRight(vector<point> points,int p)
 	return pts;
 }
 //********************************************************************************************************************
-Mat Tool::PlotImage(char* imgPath, char* outputPath, vector<point> points,int thickness)
+Mat Tool::PlotImage(char* imgPath, char* outputPath, vector<point> points,int thickness,int padding, int PixVal)
 {
 	Mat src_col = imread(imgPath);
 	int x,y;
-	copyMakeBorder( src_col, src_col, 3, 3, 3, 3, BORDER_CONSTANT, 0);
+	copyMakeBorder( src_col, src_col, padding, padding, padding, padding, BORDER_CONSTANT, 0);
 	for(int j=0 ; j < points.size() ; j++ )
 	{
 		x=points[j].x;
 		y=points[j].y;
-		cv::line(src_col, Point(y,x), Point(y,x), Scalar( 0, 0, 0 ), thickness, 8,0);
+		cv::line(src_col, Point(y,x), Point(y,x), Scalar( PixVal, 0, 0), thickness, 8,0);
 	}
 
 	imwrite(outputPath,src_col);

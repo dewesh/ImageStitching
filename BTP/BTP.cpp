@@ -26,14 +26,14 @@ int k=30; //curvature estimate
 int curveLenThreshold = 61; // 2*k + 1
 
 char* window_name = "Edge Map";
-char* imgPath1 =  "E:/personal/acads/BTP/images/Set1/scaled2/set12_l.jpg";
+char* imgPath1 =  "E:/personal/acads/BTP/images/Set1/scaled2/set1.jpg";
 char* outputPath1 = "E:/personal/acads/BTP/images/Set1/scaled2/set1_out2.png";
 char* outputPath1_canny = "E:/personal/acads/BTP/images/Set1/scaled2/set12_l1_out2.png";
 char* outputPath1_thin = "E:/personal/acads/BTP/images/Set1/scaled2/set12_l2_out2.png";
 //char* outputPath1_max = "E:/personal/acads/BTP/images/Set1/scaled2/set12_l3_out2.png";
 //char* outputPath1_short = "E:/personal/acads/BTP/images/Set1/scaled2/set12_l4_out2.png";
 
-char* imgPath2 =  "E:/personal/acads/BTP/images/Set1/scaled2/set12_r.jpg";
+char* imgPath2 =  "E:/personal/acads/BTP/images/Set1/scaled2/set2.jpg";
 char* outputPath2 = "E:/personal/acads/BTP/images/Set1/scaled2/set2_out2.png";
 
 /*
@@ -58,8 +58,8 @@ vector<point> StructureSort(vector<point> points){
 //*****************************squared distance is returned***********************************************************************
 double StructureDistance(point p1,point p2){
 	double dist;
-	int x= p1.x-p2.x;
-	int y= p1.y-p2.y;
+	double x= p1.x-p2.x;
+	double y= p1.y-p2.y;
 	dist = (x*x) + (y*y);
 	return dist;
 }
@@ -208,7 +208,7 @@ endofloop1:;
 	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved_temp1.png",temp);
 	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved_img.png",img);
 	temp1 = temp1 - img;
-	printf("total %d edges detected and %d are taken into consideration ::\n\n",totalEdges,edges.size());
+	printf("total %d edges detected and %d are taken into consideration ::\n",totalEdges,edges.size());
 	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved.png",temp1);
 
 	//imwrite(outputPath1,img);
@@ -218,7 +218,7 @@ endofloop1:;
 Mat GetEdgeScheleton(char* imgPath){
 	Mat src = imread(imgPath,0);
 	if( !src.data ){ 
-		printf("error-noimage found");
+		printf("error-noimage found\n");
 	}
 
 	Mat temp;
@@ -267,29 +267,52 @@ vector<edge> GetCurvature(Mat temp,int k){
 	return edges;
 }
 //***************************************************************************************************
+int getFeatureMatch(staple tempStaple,vector<point> points1,vector<point> points2,double slope1,double slope2 ,double dist_tollerence,double slope_tollerence){
+	int count=0,p,q;
+	double slope11,slope22,dist11,dist22;
+	point p1,p2;
+	p1 = tempStaple.p1_img1;
+	p2 = tempStaple.p1_img2;
+	for( p=0; p < points1.size(); p++)
+	{
+		dist11 = StructureDistance(p1 , points1[p]); // distance from staples high x edge
+		slope11 = StructureSlope(p1 , points1[p]) - slope1;		//slope with repect to the line
+		for( q=0; q < points2.size(); q++)
+		{
+			dist22 = StructureDistance(p2 , points2[q]);	// distance from staples high x edge
+			slope22 = StructureSlope(p2 , points2[q]) - slope2;	//slope with repect to the line
+
+			if(Tool::getInstance()->approxComp(dist11,dist22,dist11*dist_tollerence) == 0 && Tool::getInstance()->approxComp(slope11,slope22,slope11*slope_tollerence)==0)
+			{
+				count++;
+				break;
+			}
+		}
+	}
+	return count;
+}
+//***************************************************************************************************
 vector<staple> getStaples(vector<point> points1, vector<point> points2)
 {
 	int num=0;
 	double dist1,dist2;
-	double dist_tollerence = 0.05,slope_tollerence = 0.1,position_tollerence = 0.8 , curvature_tollerence = 0.5; //assuming shots are horizontal
+	double dist_tollerence = 0.02,slope_tollerence = 0.02,position_tollerence = 0.8 , curvature_tollerence = 0.5; //assuming shots are horizontal
 	vector<staple> staples;
 	double slope1, slope2;
 
 	//Mat src_l = imread(outputPath1);
 	//Mat src_r = imread(outputPath2);
-	int size1 = points1.size()>80?80:points1.size();
-	int size2 = points2.size()>80?80:points2.size();
+	int size1 = points1.size()>10?10:points1.size();
+	int size2 = points2.size()>50?50:points2.size();
 	for(int j=1; j < size1 ; j++)
 	{
 		for(int i=0; i < j ; i++)  // curvature of i is greater than j
 		{
 			dist1 = StructureDistance(points1[i],points1[j]);
 			slope1 = StructureSlope(points1[i],points1[j]);
-
 			//if(Tool::getInstance()->approxComp(points1[i].y ,points1[j].y, (double)30 )!=0){ //considering only vertical staples
 			//	continue;
 			//}
-
 			for(int n=1; n < size2; n++)
 			{
 				for(int m=0; m < n ; m++)	// curvature of m is greater than n
@@ -299,35 +322,21 @@ vector<staple> getStaples(vector<point> points1, vector<point> points2)
 					dist2 = StructureDistance(points2[m],points2[n]); 
 					slope2 = StructureSlope(points2[m],points2[n]);
 
-					//p1's x is greater than p2's x in each staple
-					staple tempStaple(points1[i],points1[j],points2[m],points2[n]);
-
 					if(Tool::getInstance()->approxComp(dist1,dist2,dist1*dist_tollerence) == 0 && Tool::getInstance()->approxComp(slope1,slope2,slope1*slope_tollerence)==0 )// && Tool::getInstance()->approxComp(points1[i].curvature + points2[j].curvature, points2[m].curvature + points2[n].curvature, (points2[i].curvature + points2[j].curvature)*curvature_tollerence) == 0)
 					{
+						staple tempStaple(points1[i],points1[j],points2[m],points2[n]);//p1's x is greater than p2's x in each staple
+						//printf("dist:: %f %f :::: slopes:: %f %f\n",dist1,dist2,slope1,slope2);
+						//printf("Staple info::\n-----------------\nimage-1 : x1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",tempStaple.p1_img1.x,tempStaple.p1_img1.y,tempStaple.p2_img1.x,tempStaple.p2_img1.y,StructureDistance(tempStaple.p1_img1,tempStaple.p2_img1));
+						//printf("image-2 : x1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",tempStaple.p1_img2.x,tempStaple.p1_img2.y,tempStaple.p2_img2.x,tempStaple.p2_img2.y,StructureDistance(tempStaple.p1_img2,tempStaple.p2_img2));
+						tempStaple.NumOfMatch = getFeatureMatch(tempStaple,points1,points2,slope1,slope2,dist_tollerence,slope_tollerence);
 
-
-						for(int p=0; p < points1.size(); p++)
-						{
-							dist1 = StructureDistance(tempStaple.p1_img1 , points1[p]); // distance from staples high x edge
-							slope1 = StructureSlope(tempStaple.p1_img1 , points1[p]) - slope1;		//slope with repect to the line
-
-							for(int q=0; q < points2.size(); q++)
-							{
-
-								dist2 = StructureDistance(tempStaple.p1_img2 , points2[q]);	// distance from staples high x edge
-								slope2 = StructureSlope(tempStaple.p1_img2 , points2[q]) - slope2;	//slope with repect to the line
-
-								if(Tool::getInstance()->approxComp(dist1,dist2,dist1*dist_tollerence) == 0 && Tool::getInstance()->approxComp(slope1,slope2,slope1*slope_tollerence)==0)
-								{
-									tempStaple.NumOfMatch++ ;
-									break;
-								}
-							}
-						}
 						staples.push_back(tempStaple);
-						printf("%d ,", tempStaple.NumOfMatch);
-						if(staples.size() >= 500)
+						//printf("matches:: %d\n", tempStaple.NumOfMatch);
+						if(staples.size() >= 100)
 						{
+							//int t=12;
+							//printf("Staple info::\nimage-1 : \n----------\nx1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",staples[t].p1_img1.x,staples[t].p1_img1.y,staples[t].p2_img1.x,staples[t].p2_img1.y,StructureDistance(staples[t].p1_img1,staples[t].p2_img1));
+							//printf("Staple info::\nimage-2 : \n----------\nx1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",staples[t].p1_img2.x,staples[t].p1_img2.y,staples[t].p2_img2.x,staples[t].p2_img2.y,StructureDistance(staples[t].p1_img2,staples[t].p2_img2));
 							goto hehe;
 						}
 					}
@@ -344,7 +353,6 @@ vector<staple> getStaples(vector<point> points1, vector<point> points2)
 
 hehe:
 
-	sort(staples.begin(),staples.end(),compStaples);
 	return staples;
 }
 //***************************************************************************************************
@@ -356,7 +364,7 @@ int main()
 	vector<point> points1,points2;
 	vector<staple> staples;
 
-	float overlap = 0.55;
+	double overlap = 0.55;
 
 	Mat src_col1 = imread(imgPath1);
 	Mat src_col2 = imread(imgPath2);
@@ -376,39 +384,53 @@ int main()
 	printf("pts: %d\n",points1.size());
 	printf("removing left part of left image\n");
 	points1 =  Tool::getInstance()->removeLeft(points1,pivot_left);
+	junction_pts1 =  Tool::getInstance()->removeLeft(junction_pts1,pivot_left);
 	points1 = StructureSort(points1);
-	Tool::getInstance()->PlotImage(imgPath1, outputPath1, points1,5);
-	printf("printing left image done...\n");
+	Tool::getInstance()->PlotImage(imgPath1, outputPath1, points1,5,3,0);
+	Tool::getInstance()->PlotImage(outputPath1, outputPath1, junction_pts1,3,0,100);
+
+	printf("Left image feature detection complete\n\nstarting with right image\n");
 	// right image
 	tempImage = GetEdgeScheleton(imgPath2); 
-
 	vector<point> junction_pts2;
-	junction_pts2 = Tool::getInstance()->getJunctionPoints(tempImage,BWThreshold); // set 1  of new feature points
-
+	junction_pts2 = Tool::getInstance()->getJunctionPoints(tempImage,BWThreshold); // set 2  of new feature points
 	edges2 = GetCurvature(tempImage,k);	// k =30
 	points2 = Tool::getInstance()->GetLocalMaxima(edges2,5,k);
 	printf("pts: %d\n",points2.size());
 	printf("removing right part of right image\n");
 	points2 =  Tool::getInstance()->removeRight(points2,pivot_right);
+	junction_pts2 =  Tool::getInstance()->removeRight(junction_pts2,pivot_right);
 	points2 = StructureSort(points2);
-	Tool::getInstance()->PlotImage(imgPath2, outputPath2, points2,5);
-	printf("printing right image done...\n");
+	Tool::getInstance()->PlotImage(imgPath2, outputPath2, points2,5,3,0);
+	Tool::getInstance()->PlotImage(outputPath2, outputPath2, junction_pts2,3,0,100);
+
+
 	printf("size of 1st pointset :%d\nsize of 2nd point set :%d\n ",points1.size()+junction_pts1.size(),points2.size()+junction_pts1.size());
-
 	printf("Staple collection Started\n");
-	staples = getStaples(points1,points2);
-	printf("done with %d number of match in a staple\n",staples[0].NumOfMatch);
+	staples = getStaples(points1,points2); //***************** some studapa here
+	printf("Done with collecting staples\n");
 
+	staple tempStaple;
+	int max = 0,maxIndex=0;
+	for(int t=0 ; t < staples.size() ; t++){ //********** get the maximum match
+		tempStaple = staples[t];
+		if(tempStaple.NumOfMatch > max){
+			maxIndex = t;
+			max = tempStaple.NumOfMatch;
+		}
+		/*printf("Staple info::\n-----------------\nimage-1 : x1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",tempStaple.p1_img1.x,tempStaple.p1_img1.y,tempStaple.p2_img1.x,tempStaple.p2_img1.y,StructureDistance(tempStaple.p1_img1,tempStaple.p2_img1));
+		printf("image-2 : x1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",tempStaple.p1_img2.x,tempStaple.p1_img2.y,tempStaple.p2_img2.x,tempStaple.p2_img2.y,StructureDistance(tempStaple.p1_img2,tempStaple.p2_img2));				
+		*/
+	}
+	int t= maxIndex;
+	printf("done with %d number of match in staple number:: %d\n",staples[t].NumOfMatch,t);
+	/*printf("Staple info::\nimage-1 : \n----------\nx1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",staples[t].p1_img1.x,staples[t].p1_img1.y,staples[t].p2_img1.x,staples[t].p2_img1.y,StructureDistance(staples[t].p1_img1,staples[t].p2_img1));
+	printf("Staple info::\nimage-2 : \n----------\nx1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",staples[t].p1_img2.x,staples[t].p1_img2.y,staples[t].p2_img2.x,staples[t].p2_img2.y,StructureDistance(staples[t].p1_img2,staples[t].p2_img2));
+	*/
 	Mat src_l = imread(outputPath1);
 	Mat src_r = imread(outputPath2);
-	//******************************************************************************
-
-
-	cv::line(src_l, Point(staples[0].p1_img1.y,staples[0].p1_img1.x), Point(staples[0].p2_img1.y,staples[0].p2_img1.x), Scalar( 255, 0, 0 ), 3, 8,0);
-	cv::line(src_r, Point(staples[0].p1_img2.y,staples[0].p1_img2.x), Point(staples[0].p2_img2.y,staples[0].p2_img2.x), Scalar( 255, 0, 0 ), 3, 8,0);
-
-	//cv::line(src_l, Point(staples[1].p1_img1.y,staples[1].p1_img1.x), Point(staples[1].p2_img1.y,staples[0].p2_img1.x), Scalar( 0, 250, 0 ), 3, 8,0);
-	//cv::line(src_r, Point(staples[1].p1_img2.y,staples[1].p1_img2.x), Point(staples[1].p2_img2.y,staples[0].p2_img2.x), Scalar( 0, 250, 0 ), 3, 8,0);
+	cv::line(src_l, Point(staples[t].p1_img1.y,staples[t].p1_img1.x), Point(staples[t].p2_img1.y,staples[t].p2_img1.x), Scalar( 255, 0, 0 ), 3, 8,0);
+	cv::line(src_r, Point(staples[t].p1_img2.y,staples[t].p1_img2.x), Point(staples[t].p2_img2.y,staples[t].p2_img2.x), Scalar( 255, 0, 0 ), 3, 8,0);
 
 	imwrite(outputPath1,src_l);
 	imwrite(outputPath2,src_r);

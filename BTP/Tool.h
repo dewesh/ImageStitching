@@ -27,7 +27,7 @@ public:
 	vector<edge> calculateCurvature(int ,vector<edge> );
 	vector<point> removeLeft(vector<point> points,int p);
 	vector<point> removeRight(vector<point> points,int p);
-	Mat PlotImage(char* imgPath, char* outputPath, vector<point> points,int thickness);
+	Mat PlotImage(char* imgPath, char* outputPath, vector<point> points,int thickness,int padding, int PixVal);
 	Mat removeCurve(edge tempEdge, Mat temp);
 	template <class T, class U>
 	int approxComp (T, T, U );
