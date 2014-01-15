@@ -23,7 +23,7 @@ int kernel_size = 3;
 int BWThreshold = 50;
 
 int k=10; //curvature estimate
-int curveLenThreshold = 21; // 2*k + 1
+int curveLenThreshold = 41; // 2*k + 1
 
 char* window_name = "Edge Map";
 char* imgPath1 =  "E:/personal/acads/BTP/images/Set1/scaled2/set1.jpg";
@@ -73,7 +73,7 @@ double StructureSlope(point p1,point p2) // angle slope
 	return slope;
 }
 //****************************************************************************************************
-vector<edge> removeSmallCurves(int th, Mat img,vector<edge> edges){
+vector<edge> removeSmallCurves(int th, Mat img,vector<edge> edges,vector<point> junction_pts){
 	//printf("started removing small curves\n");
 	Mat temp,temp1;
 
@@ -207,11 +207,21 @@ endofloop1:;
 
 	//imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved_temp1.png",temp);
 	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set2_smallEdgesRemoved_img.png",img);
+	tempEdge.points.clear();
+	for each(point tempPoint in junction_pts){
+		n=Tool::getInstance()->getTotalNeighbours(tempPoint.x,tempPoint.y,img,BWThreshold);
+		if(n==3){
+			tempPoint.curvature = 0;
+			tempEdge.points.push_back(tempPoint);
+		}
+	}
+	edges.push_back(tempEdge);
 	//temp1 = temp1 - img;
 	//printf("total %d edges detected and %d are taken into consideration ::\n",totalEdges,edges.size());
 	//imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved.png",temp1);
 
 	//imwrite(outputPath1,img);
+
 	return edges;
 }
 //****************************************************************************************************
@@ -253,11 +263,13 @@ vector<edge> GetCurvature(Mat temp,int k){
 	temp.row(temp.rows-4).setTo(cv::Scalar(0));
 	temp.row(temp.rows-5).setTo(cv::Scalar(0));
 
-	edges = removeSmallCurves(curveLenThreshold,temp,edges);
+	edges = removeSmallCurves(curveLenThreshold,temp,edges,junction_pts);
 	//imwrite(outputPath1_short,temp);
+	edge junction = edges.back();
+	edges.pop_back();
 
 	edges = Tool::getInstance()->calculateCurvature(k,edges);
-
+	edges.push_back(junction);
 	//imwrite("E:/personal/acads/BTP/images/Set1/scaled/set18_smallEdgesRemoved.png",temp);
 
 	//int x,y;
@@ -304,14 +316,14 @@ vector<staple> getStaples(vector<point> points1, vector<point> points2)
 {
 	int num=0;
 	double dist1,dist2; //*************************************** change vals below **********************
-	double dist_tollerence = 0.02,slope_tollerence = 0.03; //assuming shots are horizontal
+	double dist_tollerence = 0.02,slope_tollerence = 0.02; //assuming shots are horizontal
 	vector<staple> staples;
 	double slope1, slope2;
 
 	//Mat src_l = imread(outputPath1);
 	//Mat src_r = imread(outputPath2);
 	int size1 = points1.size()>20?20:points1.size();
-	int size2 = points2.size()>40?40:points2.size();
+	int size2 = points2.size()>30?30:points2.size();
 	for(int j=1; j < size1 ; j++)
 	{
 		for(int i=0; i < j ; i++)  // curvature of i is greater than j
@@ -372,7 +384,7 @@ int main()
 	vector<point> points1,points2;
 	vector<staple> staples;
 
-	double overlap = 0.30; //*************************************** overlap **********************
+	double overlap = 0.75; //*************************************** overlap **********************
 
 	Mat src_col1 = imread(imgPath1);
 	Mat src_col2 = imread(imgPath2);
@@ -385,29 +397,39 @@ int main()
 	tempImage = GetEdgeScheleton(imgPath1);
 
 	vector<point> junction_pts1;
-	junction_pts1 = Tool::getInstance()->getJunctionPoints(tempImage,BWThreshold); // set 1  of new feature points
+	//junction_pts1 = Tool::getInstance()->getJunctionPoints(tempImage,BWThreshold); // set 1  of new feature points
 
-	edges1 = GetCurvature(tempImage,k);	// k =30
+	edges1 = GetCurvature(tempImage,k);	// k =30 :: the last edge returned contains the junction points
+	junction_pts1 = (edges1.back()).points;
+	edges1.pop_back();
+
 	points1 = Tool::getInstance()->GetLocalMaxima(edges1,5,k); 
-	printf("pts: %d\n",points1.size());
 	printf("removing left part of left image\n");
 	points1 =  Tool::getInstance()->removeLeft(points1,pivot_left);
+	printf("num of feature pts: %d\n",points1.size());
 	junction_pts1 =  Tool::getInstance()->removeLeft(junction_pts1,pivot_left);
+	points1.insert(points1.end(),junction_pts1.begin(),junction_pts1.end());
+
 	points1 = StructureSort(points1);
 	Tool::getInstance()->PlotImage(imgPath1, outputPath1, points1,5,3,0);
 	Tool::getInstance()->PlotImage(outputPath1, outputPath1, junction_pts1,3,0,100);
 
-	printf("Left image feature detection complete\n\nstarting with right image\n");
+	printf("Left image feature detection complete\n---------------------------------------------\nstarting with right image\n");
 	// right image
 	tempImage = GetEdgeScheleton(imgPath2); 
 	vector<point> junction_pts2;
-	junction_pts2 = Tool::getInstance()->getJunctionPoints(tempImage,BWThreshold); // set 2  of new feature points
-	edges2 = GetCurvature(tempImage,k);	// k =30
+	
+	edges2 = GetCurvature(tempImage,k);	// k =30 :: the last edge returned contains the junction points
+	junction_pts2 = (edges2.back()).points;
+	edges2.pop_back();
+
 	points2 = Tool::getInstance()->GetLocalMaxima(edges2,5,k);
-	printf("pts: %d\n",points2.size());
 	printf("removing right part of right image\n");
 	points2 =  Tool::getInstance()->removeRight(points2,pivot_right);
+	printf("num of feature pts: %d\n",points2.size());
 	junction_pts2 =  Tool::getInstance()->removeRight(junction_pts2,pivot_right);
+	points2.insert(points2.end(),junction_pts2.begin(),junction_pts2.end());
+
 	points2 = StructureSort(points2);
 	Tool::getInstance()->PlotImage(imgPath2, outputPath2, points2,5,3,0);
 	Tool::getInstance()->PlotImage(outputPath2, outputPath2, junction_pts2,3,0,100);
