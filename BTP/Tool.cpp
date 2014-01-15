@@ -287,16 +287,24 @@ vector<point> Tool::GetLocalMaxima(vector<edge> edges,float tollerence,int k)
 	vector<point> points;
 	point tempPoint;
 	tempPoint.chainCode=-1;
-	int i,j,ptr=-1,flag,prev_flag;
+	int i,j,ptr=-1,flag,prev_flag,k_start;
 	int totalPoints=0;
 	for(i=0;i<edges.size();i++)
 	{
+		
 		tempPoint.curvature=0;
 		points.push_back(tempPoint);
 		ptr++;
 		prev_flag=-1;
 		totalPoints+=edges[i].points.size();
-		for(j=k;j<edges[i].points.size();j++)
+		if(edges[i].Type == 1){
+			k_start = 0;
+		}
+		else
+		{
+			k_start = k;
+		}
+		for(j=k_start;j<edges[i].points.size();j++)
 		{
 			flag = approxComp( points[ptr].curvature , edges[i].points[j].curvature , tollerence);
 			if(flag == -1)
@@ -352,38 +360,74 @@ vector<edge> Tool::calculateCurvature(int k,vector<edge> edges){
 	int i,j,len,l,val=0,f1,f2,f3;
 	for(i=0;i<edges.size();i++)
 	{
-		len=edges[i].points.size();
-		for(j=k;j<len-k-1;j++)
+		if(edges[i].Type == 1) //
 		{
-			val=0;
-			for(l=1;l<=k;l++)
+			len=edges[i].points.size();
+			for(j=k;j<len-k-1;j++)
 			{
-				f1=edges[i].points[j+l].chainCode-edges[i].points[j-l+1].chainCode;
-				f2=edges[i].points[j+l+1].chainCode-edges[i].points[j-l+1].chainCode;
-				f3=edges[i].points[j+l].chainCode-edges[i].points[j-l].chainCode;
-				if(f1<0){ f1 = f1*-1;}
-				if(f2<0){ f2 = f2*-1;}
-				if(f3<0){ f3 = f3*-1;}
-				if(f1>4){ f1 = 8-f1;}
-				if(f2>4){ f2 = 8-f2;}
-				if(f3>4){ f3 = 8-f3;}
-				if(f1>=f2 && f3>=f2 )
+				val=0;
+				for(l=1;l<=k;l++)
 				{
-					val+=f2;
-				}
-				else if(f2>=f1 && f3>=f1)
-				{
-					val+=f1;
-				}
-				else
-				{
-					val+=f3;
-				}
+					f1=edges[i].points[j+l].chainCode-edges[i].points[j-l+1].chainCode;
+					f2=edges[i].points[j+l+1].chainCode-edges[i].points[j-l+1].chainCode;
+					f3=edges[i].points[j+l].chainCode-edges[i].points[j-l].chainCode;
+					if(f1<0){ f1 = f1*-1;}
+					if(f2<0){ f2 = f2*-1;}
+					if(f3<0){ f3 = f3*-1;}
+					if(f1>4){ f1 = 8-f1;}
+					if(f2>4){ f2 = 8-f2;}
+					if(f3>4){ f3 = 8-f3;}
+					if(f1>=f2 && f3>=f2 )
+					{
+						val+=f2;
+					}
+					else if(f2>=f1 && f3>=f1)
+					{
+						val+=f1;
+					}
+					else
+					{
+						val+=f3;
+					}
 
-				//calculate the 6 things and minimum of that
+					//calculate the 6 things and minimum of that
+				}
+				//printf("%d",val);
+				edges[i].points[j].curvature=val; //devide by k if you need exact curvature value
 			}
-			//printf("%d",val);
-			edges[i].points[j].curvature=val; //devide by k if you need exact curvature value
+		}
+		else
+		{// circular path
+			len=edges[i].points.size();
+			for( j = 0 ; j < len ; j++ )
+			{
+				val=0;
+				for(l=1;l<=k;l++)
+				{
+					f1=edges[i].points[(j+l)%len].chainCode-edges[i].points[(j-l+1+len)%len].chainCode;
+					f2=edges[i].points[(j+l+1)%len].chainCode-edges[i].points[(j-l+1+len)%len].chainCode;
+					f3=edges[i].points[(j+l)%len].chainCode-edges[i].points[(j-l+len)%len].chainCode;
+					if(f1<0){ f1 = f1*-1;}
+					if(f2<0){ f2 = f2*-1;}
+					if(f3<0){ f3 = f3*-1;}
+					if(f1>4){ f1 = 8-f1;}
+					if(f2>4){ f2 = 8-f2;}
+					if(f3>4){ f3 = 8-f3;}
+					if(f1>=f2 && f3>=f2 )
+					{
+						val+=f2;
+					}
+					else if(f2>=f1 && f3>=f1)
+					{
+						val+=f1;
+					}
+					else
+					{
+						val+=f3;
+					}
+				}
+				edges[i].points[j].curvature=val; //devide by k if you need exact curvature value
+			}
 		}
 		//printf("\n");
 	}

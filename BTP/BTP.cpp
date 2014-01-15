@@ -302,7 +302,7 @@ vector<staple> getStaples(vector<point> points1, vector<point> points2)
 
 	//Mat src_l = imread(outputPath1);
 	//Mat src_r = imread(outputPath2);
-	int size1 = points1.size()>10?10:points1.size();
+	int size1 = points1.size()>25?25:points1.size();
 	int size2 = points2.size()>50?50:points2.size();
 	for(int j=1; j < size1 ; j++)
 	{
@@ -364,7 +364,7 @@ int main()
 	vector<point> points1,points2;
 	vector<staple> staples;
 
-	double overlap = 0.55;
+	double overlap = 0.5;
 
 	Mat src_col1 = imread(imgPath1);
 	Mat src_col2 = imread(imgPath2);
