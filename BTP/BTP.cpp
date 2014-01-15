@@ -22,8 +22,8 @@ int ratio = 3;
 int kernel_size = 3;
 int BWThreshold = 50;
 
-int k=30; //curvature estimate
-int curveLenThreshold = 61; // 2*k + 1
+int k=10; //curvature estimate
+int curveLenThreshold = 21; // 2*k + 1
 
 char* window_name = "Edge Map";
 char* imgPath1 =  "E:/personal/acads/BTP/images/Set1/scaled2/set1.jpg";
@@ -74,7 +74,7 @@ double StructureSlope(point p1,point p2) // angle slope
 }
 //****************************************************************************************************
 vector<edge> removeSmallCurves(int th, Mat img,vector<edge> edges){
-	printf("started removing small curves\n");
+	//printf("started removing small curves\n");
 	Mat temp,temp1;
 
 	edges.clear();
@@ -205,11 +205,11 @@ endofloop1:;
 		}
 	}
 
-	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved_temp1.png",temp);
-	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved_img.png",img);
-	temp1 = temp1 - img;
-	printf("total %d edges detected and %d are taken into consideration ::\n",totalEdges,edges.size());
-	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved.png",temp1);
+	//imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved_temp1.png",temp);
+	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set2_smallEdgesRemoved_img.png",img);
+	//temp1 = temp1 - img;
+	//printf("total %d edges detected and %d are taken into consideration ::\n",totalEdges,edges.size());
+	//imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved.png",temp1);
 
 	//imwrite(outputPath1,img);
 	return edges;
@@ -225,14 +225,14 @@ Mat GetEdgeScheleton(char* imgPath){
 	temp.create(src.size(), src.type());
 
 	temp=Tool::getInstance()->CannyThreshold(src,lowThreshold,ratio,kernel_size,BWThreshold);
-	imwrite(outputPath1_canny,temp);
+	//imwrite(outputPath1_canny,temp);
 	copyMakeBorder( temp, temp, 3, 3, 3, 3, BORDER_CONSTANT, 0);
 	//copyMakeBorder( src_col, src_col, 3, 3, 3, 3, BORDER_CONSTANT, 0);
 
 	temp = Tool::getInstance()->thinEdges_std(temp);
 	//imwrite(outputPath1_thin,temp);
 	//temp = Tool::getInstance()->joinEdges(temp,BWThreshold);
-	imwrite(outputPath1_thin,temp);
+	//imwrite(outputPath1_thin,temp);
 	return temp;
 }
 //****************************************************************************************************
@@ -244,6 +244,14 @@ vector<edge> GetCurvature(Mat temp,int k){
 	temp = Tool::getInstance()->removePoints(temp,junction_pts,0);
 
 	//edges = extractCurves(temp);
+	temp.col(3).setTo(cv::Scalar(0));
+	temp.col(4).setTo(cv::Scalar(0));
+	temp.col(temp.cols-4).setTo(cv::Scalar(0));
+	temp.col(temp.cols-5).setTo(cv::Scalar(0));
+	temp.row(3).setTo(cv::Scalar(0));
+	temp.row(4).setTo(cv::Scalar(0));
+	temp.row(temp.rows-4).setTo(cv::Scalar(0));
+	temp.row(temp.rows-5).setTo(cv::Scalar(0));
 
 	edges = removeSmallCurves(curveLenThreshold,temp,edges);
 	//imwrite(outputPath1_short,temp);
@@ -295,15 +303,15 @@ int getFeatureMatch(staple tempStaple,vector<point> points1,vector<point> points
 vector<staple> getStaples(vector<point> points1, vector<point> points2)
 {
 	int num=0;
-	double dist1,dist2;
-	double dist_tollerence = 0.02,slope_tollerence = 0.02,position_tollerence = 0.8 , curvature_tollerence = 0.5; //assuming shots are horizontal
+	double dist1,dist2; //*************************************** change vals below **********************
+	double dist_tollerence = 0.02,slope_tollerence = 0.03; //assuming shots are horizontal
 	vector<staple> staples;
 	double slope1, slope2;
 
 	//Mat src_l = imread(outputPath1);
 	//Mat src_r = imread(outputPath2);
-	int size1 = points1.size()>25?25:points1.size();
-	int size2 = points2.size()>50?50:points2.size();
+	int size1 = points1.size()>20?20:points1.size();
+	int size2 = points2.size()>40?40:points2.size();
 	for(int j=1; j < size1 ; j++)
 	{
 		for(int i=0; i < j ; i++)  // curvature of i is greater than j
@@ -364,7 +372,7 @@ int main()
 	vector<point> points1,points2;
 	vector<staple> staples;
 
-	double overlap = 0.5;
+	double overlap = 0.30; //*************************************** overlap **********************
 
 	Mat src_col1 = imread(imgPath1);
 	Mat src_col2 = imread(imgPath2);

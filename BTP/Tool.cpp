@@ -201,7 +201,7 @@ Mat Tool::thinEdges_std(Mat temp){
 }
 //**********************************************************************************************************************
 vector<point> Tool::getJunctionPoints(Mat img,int BWThreshold){
-	printf("detecting junction points::\n");
+	//printf("detecting junction points::\n");
 	int i ,j,n;
 	vector<point> points;
 	point tempPoint;
@@ -231,7 +231,7 @@ Mat Tool::removePoints(Mat img,vector<point> points,int WHITE_VAL){
 //********************************************************************************************************************
 Mat Tool::CannyThreshold(Mat tsrc,int lowThreshold,int ratio,int kernel_size,int BWThreshold)
 {
-	printf("starting canny edge detection ::\n");
+	//printf("starting canny edge detection ::\n");
 	Mat tdst;
 
 	tdst.create( tsrc.size(), tsrc.type() );
@@ -248,7 +248,7 @@ Mat Tool::CannyThreshold(Mat tsrc,int lowThreshold,int ratio,int kernel_size,int
 } 
 //********************************************************************************************************************
 Mat Tool::joinEdges(Mat img,int BWThreshold){
-	printf("starting joining edges\n");
+	//printf("starting joining edges\n");
 	int i,j,n,l,k,i1,j1,n1;
 	for(i=2;i<img.rows-2;i++){
 		for(j=2;j<img.cols-2;j++){
@@ -352,7 +352,7 @@ vector<point> Tool::GetLocalMaxima(vector<edge> edges,float tollerence,int k)
 			ptr--;
 		}
 	}
-	printf("curve len= %d\n",totalPoints);
+	//printf("curve len= %d\n",totalPoints);
 	return points;
 }
 //********************************************************************************************************************

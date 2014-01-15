@@ -1,20 +1,19 @@
-﻿Build started 1/15/2014 10:45:40 PM.
+﻿Build started 1/16/2014 1:38:50 AM.
      1>Project "C:\Users\deweshiitkgp\documents\visual studio 2010\Projects\BTP\BTP\BTP.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "x64\Debug\BTP.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
          All outputs are up-to-date.
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /IC:\OpenCV2.3\build\include /IC:\OpenCV2.3\build\include\opencv /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"x64\Debug\BTP.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt Tool.cpp
-         Tool.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /IC:\OpenCV2.3\build\include /IC:\OpenCV2.3\build\include\opencv /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"x64\Debug\BTP.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt BTP.cpp
+         BTP.cpp
      1>C:\OpenCV2.3\build\include\opencv2/flann/logger.h(70): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(234) : see declaration of 'fopen'
-     1>Tool.cpp(299): warning C4267: '+=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Tool.cpp(365): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Tool.cpp(396): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>Tool.cpp(401): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Tool.cpp(429): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>Tool.cpp(481): warning C4101: 'k' : unreferenced local variable
-     1>Tool.cpp(481): warning C4101: 'l' : unreferenced local variable
+     1>BTP.cpp(313): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+     1>BTP.cpp(314): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
+     1>BTP.cpp(380): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>BTP.cpp(381): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>BTP.cpp(447): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(304) : see declaration of 'scanf'
        ResourceCompile:
          All outputs are up-to-date.
        ManifestResourceCompile:
@@ -42,4 +41,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:04.11
+Time Elapsed 00:00:03.82
