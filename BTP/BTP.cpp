@@ -28,6 +28,7 @@ int curveLenThreshold = 41; // 2*k + 1
 char* window_name = "Edge Map";
 char* imgPath1 =  "E:/personal/acads/BTP/images/Set1/scaled2/set1.jpg";
 char* outputPath1 = "E:/personal/acads/BTP/images/Set1/scaled2/set1_out2.png";
+char* finalOutput = "E:/personal/acads/BTP/images/Set1/scaled2/Result.png";
 char* outputPath1_canny = "E:/personal/acads/BTP/images/Set1/scaled2/set12_l1_out2.png";
 char* outputPath1_thin = "E:/personal/acads/BTP/images/Set1/scaled2/set12_l2_out2.png";
 //char* outputPath1_max = "E:/personal/acads/BTP/images/Set1/scaled2/set12_l3_out2.png";
@@ -48,9 +49,11 @@ char* outputPath2 = "E:/personal/acads/BTP/images/Set1/set17_out.png";
 bool comp(point p1, point p2){
 	return (p1.curvature > p2.curvature);
 }
+//****************************************************************************************************
 bool compStaples(staple p1, staple p2){
 	return (p1.NumOfMatch > p2.NumOfMatch);
 }
+//****************************************************************************************************
 vector<point> StructureSort(vector<point> points){
 	sort(points.begin(),points.end(),comp);
 	return points;
@@ -61,6 +64,7 @@ double StructureDistance(point p1,point p2){
 	double x= p1.x-p2.x;
 	double y= p1.y-p2.y;
 	dist = (x*x) + (y*y);
+	dist = sqrt(dist);
 	return dist;
 }
 //********************************* radian slope **************************************************************
@@ -71,6 +75,67 @@ double StructureSlope(point p1,point p2) // angle slope
 	double y= p1.y-p2.y;
 	slope =atan2(y,x) + 3.15;
 	return slope;
+}
+//****************************************************************************************************
+void rotateImage(const Mat &input, Mat &output, double alpha, double beta, double gamma, double dx, double dy, double dz, double f)
+  {
+	  int len = std::max(input.cols, input.rows);
+	  int len_c = input.cols;
+	  int len_r = input.rows;
+    alpha = (alpha - 90.)*CV_PI/180.;
+    beta = (beta - 90.)*CV_PI/180.;
+    gamma = (gamma - 90.)*CV_PI/180.;
+    // get width and height for ease of use in matrices
+    double w = (double)input.cols;
+    double h = (double)input.rows;
+    // Projection 2D -> 3D matrix
+    Mat A1 = (Mat_<double>(4,3) <<
+              1, 0, -w/2,
+              0, 1, -h/2,
+              0, 0,    0,
+              0, 0,    1);
+    // Rotation matrices around the X, Y, and Z axis
+    Mat RX = (Mat_<double>(4, 4) <<
+              1,          0,           0, 0,
+              0, cos(alpha), -sin(alpha), 0,
+              0, sin(alpha),  cos(alpha), 0,
+              0,          0,           0, 1);
+    Mat RY = (Mat_<double>(4, 4) <<
+              cos(beta), 0, -sin(beta), 0,
+              0, 1,          0, 0,
+              sin(beta), 0,  cos(beta), 0,
+              0, 0,          0, 1);
+    Mat RZ = (Mat_<double>(4, 4) <<
+              cos(gamma), -sin(gamma), 0, 0,
+              sin(gamma),  cos(gamma), 0, 0,
+              0,          0,           1, 0,
+              0,          0,           0, 1);
+    // Composed rotation matrix with (RX, RY, RZ)
+    Mat R = RX * RY * RZ;
+    // Translation matrix
+    Mat T = (Mat_<double>(4, 4) <<
+             1, 0, 0, dx,
+             0, 1, 0, dy,
+             0, 0, 1, dz,
+             0, 0, 0, 1);
+    // 3D -> 2D matrix
+    Mat A2 = (Mat_<double>(3,4) <<
+              f, 0, w/2, 0,
+              0, f, h/2, 0,
+              0, 0,   1, 0);
+    // Final transformation matrix
+    Mat trans = A2 * (T * (R * A1));
+    // Apply matrix transformation
+    warpPerspective(input, output, trans,cv::Size(len, len), INTER_LANCZOS4);
+  }
+//****************************************************************************************************
+void rotate(cv::Mat& src, double angle, double scaleFactor, cv::Mat& dst)
+{
+    int len = std::max(src.cols, src.rows);
+    cv::Point2f pt(len/2., len/2.);
+	cv::Mat r = cv::getRotationMatrix2D(pt, angle, scaleFactor);
+
+    cv::warpAffine(src, dst, r, cv::Size(len, len));
 }
 //****************************************************************************************************
 vector<edge> removeSmallCurves(int th, Mat img,vector<edge> edges,vector<point> junction_pts){
@@ -375,6 +440,24 @@ hehe:
 
 	return staples;
 }
+//****************************************************************************************************
+Mat blendImages(Mat left, Mat right, double alpha, staple st){
+	for(int i =0 ; i < left.cols ; i++){
+		for(int j =0 ; j < left.rows ; j++){
+			if((left.at<Vec3b>(j,i)[0] <=2 && left.at<Vec3b>(j,i)[1] <=2 && left.at<Vec3b>(j,i)[2] <=2 )|| (right.at<Vec3b>(j,i)[0] <=2 && right.at<Vec3b>(j,i)[1] <=2 && right.at<Vec3b>(j,i)[2] <=2 )){
+				left.at<uchar>(j,3*i)  = left.at<uchar>(j,3*i)  + right.at<uchar>(j,3*i) ;
+				left.at<uchar>(j,3*i+1)  = left.at<uchar>(j,3*i+1)  + right.at<uchar>(j,3*i+1) ;
+				left.at<uchar>(j,3*i+2)  = left.at<uchar>(j,3*i+2)  + right.at<uchar>(j,3*i+2) ;
+			}
+			else{
+				left.at<uchar>(j,3*i) = (left.at<uchar>(j,3*i)  + right.at<uchar>(j,3*i)) / 2; 
+				left.at<uchar>(j,3*i+1) = (left.at<uchar>(j,3*i+1) + right.at<uchar>(j,3*i+1) ) / 2; 
+				left.at<uchar>(j,3*i+2) = (left.at<uchar>(j,3*i+2)  + right.at<uchar>(j,3*i+2)  ) / 2; 
+			}
+		}
+	}
+	return left;
+}
 //***************************************************************************************************
 /** @function main */
 int main()
@@ -385,6 +468,7 @@ int main()
 	vector<staple> staples;
 
 	double overlap = 0.75; //*************************************** overlap **********************
+
 
 	Mat src_col1 = imread(imgPath1);
 	Mat src_col2 = imread(imgPath2);
@@ -448,23 +532,86 @@ int main()
 			maxIndex = t;
 			max = tempStaple.NumOfMatch;
 		}
-		/*printf("Staple info::\n-----------------\nimage-1 : x1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",tempStaple.p1_img1.x,tempStaple.p1_img1.y,tempStaple.p2_img1.x,tempStaple.p2_img1.y,StructureDistance(tempStaple.p1_img1,tempStaple.p2_img1));
-		printf("image-2 : x1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",tempStaple.p1_img2.x,tempStaple.p1_img2.y,tempStaple.p2_img2.x,tempStaple.p2_img2.y,StructureDistance(tempStaple.p1_img2,tempStaple.p2_img2));				
-		*/
+		//printf("Staple info::\n-----------------\nimage-1 : x1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",tempStaple.p1_img1.x,tempStaple.p1_img1.y,tempStaple.p2_img1.x,tempStaple.p2_img1.y,StructureDistance(tempStaple.p1_img1,tempStaple.p2_img1));
+		//printf("image-2 : x1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",tempStaple.p1_img2.x,tempStaple.p1_img2.y,tempStaple.p2_img2.x,tempStaple.p2_img2.y,StructureDistance(tempStaple.p1_img2,tempStaple.p2_img2));				
+		
 	}
 	int t= maxIndex;
 	printf("done with %d number of match in staple number:: %d\n",staples[t].NumOfMatch,t);
-	/*printf("Staple info::\nimage-1 : \n----------\nx1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",staples[t].p1_img1.x,staples[t].p1_img1.y,staples[t].p2_img1.x,staples[t].p2_img1.y,StructureDistance(staples[t].p1_img1,staples[t].p2_img1));
-	printf("Staple info::\nimage-2 : \n----------\nx1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",staples[t].p1_img2.x,staples[t].p1_img2.y,staples[t].p2_img2.x,staples[t].p2_img2.y,StructureDistance(staples[t].p1_img2,staples[t].p2_img2));
-	*/
+	//printf("Staple info::\nimage-1 : \n----------\nx1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",staples[t].p1_img1.x,staples[t].p1_img1.y,staples[t].p2_img1.x,staples[t].p2_img1.y,StructureDistance(staples[t].p1_img1,staples[t].p2_img1));
+	//printf("Staple info::\nimage-2 : \n----------\nx1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",staples[t].p1_img2.x,staples[t].p1_img2.y,staples[t].p2_img2.x,staples[t].p2_img2.y,StructureDistance(staples[t].p1_img2,staples[t].p2_img2));
+	
 	Mat src_l = imread(outputPath1);
 	Mat src_r = imread(outputPath2);
+
+	printf("\nslope:%lf,dist: %lf\n",StructureSlope(staples[t].p1_img1,staples[t].p2_img1),StructureDistance(staples[t].p1_img1,staples[t].p2_img1));
+	printf("slope:%lf,dist: %lf\n",StructureSlope(staples[t].p1_img2,staples[t].p2_img2),StructureDistance(staples[t].p1_img2,staples[t].p2_img2));
+	
 	cv::line(src_l, Point(staples[t].p1_img1.y,staples[t].p1_img1.x), Point(staples[t].p2_img1.y,staples[t].p2_img1.x), Scalar( 255, 0, 0 ), 3, 8,0);
 	cv::line(src_r, Point(staples[t].p1_img2.y,staples[t].p1_img2.x), Point(staples[t].p2_img2.y,staples[t].p2_img2.x), Scalar( 255, 0, 0 ), 3, 8,0);
 
-	imwrite(outputPath1,src_l);
-	imwrite(outputPath2,src_r);
+	cout << "p1_image1.x" << staples[t].p1_img1.x << endl;
+	cout << "p1_image2.x" << staples[t].p1_img2.x << endl;
+	cout << "p1_image1.y" << staples[t].p1_img1.y << endl;
+	cout << "p1_image2.y" << staples[t].p1_img2.y << endl;
 
+	double deltaThetaF,scalingF,theta1,theta2;
+	theta1 = StructureSlope(staples[t].p1_img1,staples[t].p2_img1);
+	theta2 = StructureSlope(staples[t].p1_img2,staples[t].p2_img2);
+	scalingF = StructureDistance(staples[t].p1_img1,staples[t].p2_img1) / StructureDistance(staples[t].p1_img2,staples[t].p2_img2);
+	deltaThetaF = (theta1-theta2)*180/3.1415;
+	/*int delta_x,delta_y;
+	delta_x = staples[t].p1_img1.x - staples[t].p1_img2.x;
+	delta_x = delta_x > 0 ? delta_x : -1*delta_x ;
+	delta_y = delta_y > 0 ? delta_y : -1*delta_y ;
+	*/
+
+	//*remove
+	//src_l = imread(outputPath1);
+	//src_r = imread(outputPath2);
+	//---/remove
+
+	
+	//rotate(src_l, -30, src_l);
+	//rotateImage(src_l,src_l,90,100,90,0,0,2000,2000);
+	Mat M_l(2,3,CV_64F),M_r_scale,M_r,M_r_mov(2,3,CV_64F); // the transformation matrix
+	Mat final; // final image
+
+	M_l = 0;
+	M_r_mov = 0;
+	M_l.at<double>(0,0) = 1;
+	M_l.at<double>(1,1) = 1;
+	M_l.at<double>(1,2) = (src_l.rows + src_r.rows)/4;
+	M_l.at<double>(0,2) = 0;
+
+	M_r_mov.at<double>(0,0) = 1;
+	M_r_mov.at<double>(1,1) = 1;
+	M_r_mov.at<double>(0,2) = (staples[t].p1_img1.y - staples[t].p1_img2.y) ;
+	M_r_mov.at<double>(1,2) = ((src_l.rows + src_r.rows)/4 )+ (staples[t].p1_img1.x - staples[t].p1_img2.x);
+	
+
+	//M_r = getRotationMatrix2D((Point2f)(src_l.cols/2.0,src_l.rows/2.0),20,1);//3*(staples[t].p1_img1.x - staples[t].p1_img2.x),((src_l.rows + src_r.rows)/4 )+ staples[t].p1_img1.y
+	M_r = getRotationMatrix2D((Point2f)(staples[t].p1_img1.y ,((src_l.rows + src_r.rows)/4 )+ (staples[t].p1_img1.x)),deltaThetaF,1);
+	M_r_scale = getRotationMatrix2D((Point2f)(0,0),0,scalingF);
+
+	Size s = src_r.size() + src_l.size();
+	
+	//scale
+	warpAffine(src_r,final,M_r_scale,src_r.size(),1,0,1); // right image
+	//translate
+	warpAffine(src_l,src_l,M_l,s,1,0,1);		// left image
+	warpAffine(final,src_r,M_r_mov,s,1,0,1);	// right image translation
+	//rotate
+	warpAffine(src_r,final,M_r,s,1,0,1);		// right image rotation
+	
+	
+	imwrite(outputPath2,final);
+	imwrite(outputPath1,src_l);
+	
+
+	final = blendImages(src_l,final,0.5,staples[t]);
+	imwrite(finalOutput,final);
+	//joinImages
 	/// Wait until user exit program by pressing a key
 	scanf("%d",&lol);
 	waitKey(0);
