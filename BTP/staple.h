@@ -1,6 +1,9 @@
 #pragma once
 #include"point.h"
+#include <utility>
+#include <vector>
 
+using namespace std;
 class staple
 {
 public:
@@ -8,6 +11,7 @@ public:
 	point p2_img1;
 	point p1_img2;
 	point p2_img2;
+	vector<pair<point,point>> match;
 	int NumOfMatch;
 	staple(void);
 	staple(point,point, point, point);
