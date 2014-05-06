@@ -220,7 +220,7 @@ vector<point> Tool::getJunctionPoints(Mat img,int BWThreshold){
 	}
 	return points;
 }
-
+//********************************************************************************************************************
 Mat Tool::removePoints(Mat img,vector<point> points,int WHITE_VAL){
 	//printf("removing junction points::\n");
 	for each(point tempPoint in points){
@@ -493,7 +493,7 @@ Mat Tool::removeCurve(edge tempEdge, Mat temp){
 	temp.at<uchar>(i2,j2)=0;
 	return temp;
 }
-
+//********************************************************************************************************************
 edge Tool::getCircularCurve(Mat img, int threshold, int i, int j){
 	edge tempEdge;
 	tempEdge.Type = 0;
@@ -550,7 +550,7 @@ edge Tool::getCircularCurve(Mat img, int threshold, int i, int j){
 	return tempEdge;
 }
 //****************************************************************************************************
-Mat Tool::GetEdgeScheleton(char* imgPath,int lowThreshold,int ratio,int kernel_size,int BWThreshold){
+Mat Tool::GetEdgeScheleton(char* imgPath,char* outputPath1_canny,char* outputPath1_thin, int lowThreshold,int ratio,int kernel_size,int BWThreshold){
 	Mat src = imread(imgPath,0);
 	if( !src.data ){ 
 		printf("error-noimage found\n");
@@ -560,12 +560,12 @@ Mat Tool::GetEdgeScheleton(char* imgPath,int lowThreshold,int ratio,int kernel_s
 	temp.create(src.size(), src.type());
 
 	temp=CannyThreshold(src,lowThreshold,ratio,kernel_size,BWThreshold);
-	//imwrite(outputPath1_canny,temp);
+	imwrite(outputPath1_canny,temp);
 	copyMakeBorder( temp, temp, 3, 3, 3, 3, BORDER_CONSTANT, 0);
 	//copyMakeBorder( src_col, src_col, 3, 3, 3, 3, BORDER_CONSTANT, 0);
 
 	temp = Tool::getInstance()->thinEdges_std(temp);
-	//imwrite(outputPath1_thin,temp);
+	imwrite(outputPath1_thin,temp);
 	//temp = Tool::getInstance()->joinEdges(temp,BWThreshold);
 	//imwrite(outputPath1_thin,temp);
 	return temp;
@@ -592,7 +592,7 @@ Mat Tool::blendImages1(Mat left, Mat right, double alpha, staple st){	// type 1
 Mat Tool::blendImages2(Mat left, Mat right, double alpha, staple st){	// type 2
 	for(int i =0 ; i < left.cols ; i++){
 		for(int j =0 ; j < left.rows ; j++){
-			if((i >= min(st.p1_img1.y, st.p2_img1.y)) && (i < max(st.p1_img1.y, st.p2_img1.y))) {
+			if((i >= min(st.p1_img1.y, st.p2_img1.y)) && (i <= max(st.p1_img1.y, st.p2_img1.y))) {
 				if((left.at<Vec3b>(j,i)[0] <=2 && left.at<Vec3b>(j,i)[1] <=2 && left.at<Vec3b>(j,i)[2] <=2 )|| (right.at<Vec3b>(j,i)[0] <=2 && right.at<Vec3b>(j,i)[1] <=2 && right.at<Vec3b>(j,i)[2] <=2 )){
 					left.at<uchar>(j,3*i)  = left.at<uchar>(j,3*i)  + right.at<uchar>(j,3*i) ;
 					left.at<uchar>(j,3*i+1)  = left.at<uchar>(j,3*i+1)  + right.at<uchar>(j,3*i+1) ;
@@ -623,7 +623,7 @@ Mat Tool::blendImages3(Mat left, Mat right, staple st){	// type 3 dynamic alpha
 	deltaX = deltaX > 0 ? deltaX: -deltaX;
 	for(int i =0 ; i < left.cols ; i++){
 		for(int j =0 ; j < left.rows ; j++){
-			if((i >= min(st.p1_img1.y, st.p2_img1.y)) && (i < max(st.p1_img1.y, st.p2_img1.y))) {
+			if((i >= min(st.p1_img1.y, st.p2_img1.y)) && (i <= max(st.p1_img1.y, st.p2_img1.y))) {
 				if((left.at<Vec3b>(j,i)[0] <=2 && left.at<Vec3b>(j,i)[1] <=2 && left.at<Vec3b>(j,i)[2] <=2 )|| (right.at<Vec3b>(j,i)[0] <=2 && right.at<Vec3b>(j,i)[1] <=2 && right.at<Vec3b>(j,i)[2] <=2 )){
 					left.at<uchar>(j,3*i)  = left.at<uchar>(j,3*i)  + right.at<uchar>(j,3*i) ;
 					left.at<uchar>(j,3*i+1)  = left.at<uchar>(j,3*i+1)  + right.at<uchar>(j,3*i+1) ;
@@ -656,7 +656,7 @@ Mat Tool::blendImages4(Mat left, Mat right, staple st){	// type 3 dynamic alpha 
 	deltaX = deltaX > 0 ? deltaX: -deltaX;
 	for(int i =0 ; i < left.cols ; i++){
 		for(int j =0 ; j < left.rows ; j++){
-			if((i >= min(st.p1_img1.y, st.p2_img1.y)) && (i < max(st.p1_img1.y, st.p2_img1.y))) {
+			if((i >= min(st.p1_img1.y, st.p2_img1.y)) && (i <= max(st.p1_img1.y, st.p2_img1.y))) {
 				if((left.at<Vec3b>(j,i)[0] <=2 && left.at<Vec3b>(j,i)[1] <=2 && left.at<Vec3b>(j,i)[2] <=2 )|| (right.at<Vec3b>(j,i)[0] <=2 && right.at<Vec3b>(j,i)[1] <=2 && right.at<Vec3b>(j,i)[2] <=2 )){
 					left.at<uchar>(j,3*i)  = left.at<uchar>(j,3*i)  + right.at<uchar>(j,3*i) ;
 					left.at<uchar>(j,3*i+1)  = left.at<uchar>(j,3*i+1)  + right.at<uchar>(j,3*i+1) ;
@@ -696,7 +696,7 @@ Mat Tool::blendImages5(Mat left, Mat right, staple st){	// type 3 dynamic alpha 
 	double denom = 2*pow((double)(deltaX)/2,2); 
 	for(int i =0 ; i < left.cols ; i++){
 		for(int j =0 ; j < left.rows ; j++){
-			if((i >= min(st.p1_img1.y, st.p2_img1.y)) && (i < max(st.p1_img1.y, st.p2_img1.y))) {
+			if((i >= min(st.p1_img1.y, st.p2_img1.y)) && (i <= max(st.p1_img1.y, st.p2_img1.y))) {
 				if((left.at<Vec3b>(j,i)[0] <=2 && left.at<Vec3b>(j,i)[1] <=2 && left.at<Vec3b>(j,i)[2] <=2 )|| (right.at<Vec3b>(j,i)[0] <=2 && right.at<Vec3b>(j,i)[1] <=2 && right.at<Vec3b>(j,i)[2] <=2 )){
 					left.at<uchar>(j,3*i)  = left.at<uchar>(j,3*i)  + right.at<uchar>(j,3*i) ;
 					left.at<uchar>(j,3*i+1)  = left.at<uchar>(j,3*i+1)  + right.at<uchar>(j,3*i+1) ;
@@ -705,11 +705,11 @@ Mat Tool::blendImages5(Mat left, Mat right, staple st){	// type 3 dynamic alpha 
 				else{
 					pos = i - min(st.p1_img1.y, st.p2_img1.y);
 					if(pos <= (double)deltaX/2){
-						alpha = pow((double)pos,2) / denom;
+						alpha = pow((2*(double)pos)/deltaX,6) / 2;
 						alpha = 1 - alpha; 
 					}
 					else{
-						alpha = pow((double)deltaX - pos,2) / denom;
+						alpha = pow((2*(deltaX-(double)pos))/deltaX,6) / 2;
 					}
 						
 					
@@ -734,6 +734,9 @@ Mat Tool::blendImages5(Mat left, Mat right, staple st){	// type 3 dynamic alpha 
 staple Tool::getFeatureMatch(staple tempStaple,vector<point> points1,vector<point> points2,double slope1,double slope2 ,double dist_tollerence,double slope_tollerence){
 	int count=0,p,q;
 	double slope11,slope22,dist11,dist22;
+	double reqSlope,reqDist;
+	point expectedPoint;
+	pair<double,double> tempPos;
 	point p1,p2;
 	bool matchFound;
 	double minTot,tempD,tempA,tempC,tempTot;
@@ -746,22 +749,31 @@ staple Tool::getFeatureMatch(staple tempStaple,vector<point> points1,vector<poin
 	{
 		dist11 = StructureDistance(p1 , points1[p]); // distance from staples high x edge
 		slope11 = StructureSlope(p1 , points1[p]) - slope1;		//slope with repect to the line
+		reqSlope = slope11 + slope2;
+		reqDist = dist11/scalingF;
+		expectedPoint.x = p2.x + reqDist*cos(reqSlope);
+		expectedPoint.y = p2.y + reqDist*sin(reqSlope);
 		matchFound = false;minTot = 1000000000;
+		//printf("\n");
 		for( q=0; q < points2.size(); q++)
 		{
 			dist22 = StructureDistance(p2 , points2[q])*scalingF;	// distance from staples high x edge with scaling factor
 			slope22 = StructureSlope(p2 , points2[q]) - slope2;	//slope with repect to the line
 			//absolute value considered---------------------------------------------------------------------------------------------
-			if(Tool::getInstance()->approxComp(dist11,dist22,dist11*dist_tollerence) == 0 && Tool::getInstance()->approxComp(slope11,slope22,slope_tollerence)==0)
+			if(Tool::getInstance()->approxComp(dist11,dist22,dist11*dist_tollerence) == 0 && Tool::getInstance()->approxComp(slope11,slope22,slope11*slope_tollerence)==0 && abs((int)expectedPoint.x-points2[q].x) <= 10 && abs((int)expectedPoint.y-points2[q].y) <= 10)
 			{
 				matchFound = true; tempD = abs(dist22-dist11); tempA=abs(-slope11+slope22); tempC = abs(points1[p].curvature - points2[q].curvature);
 				tempTot = tempA*tempD*tempC;
 				if(tempTot < minTot){
 					minTot = tempTot;
 					tempPair = make_pair(points1[p],points2[q]);
+					tempPos = make_pair(expectedPoint.x-points2[q].x,expectedPoint.y-points2[q].y);
+					//printf("(%d,%d)", (int)expectedPoint.x-points2[q].x,(int)expectedPoint.y-points2[q].y);
 				}
+				
 				break;
 			}
+			
 		}
 		if(matchFound){
 			tempStaple.match.push_back(tempPair);
@@ -791,15 +803,15 @@ double Tool::StructureSlope(point p1,point p2) // angle slope
 	return slope;
 }
 //***************************************************************************************************
-vector<staple> Tool::getStaples(vector<point> points1, vector<point> points2,double dist_tollerence,double slope_tollerence)
+vector<staple> Tool::getStaples(vector<point> points1, vector<point> points2,double dist_tollerence,double slope_tollerence)//slope tollerence is higher
 {
 	int num=0;
-	double dist1,dist2; //*************************************** change vals below **********************
+	double dist1,dist2; //*************************************************************
 	//double dist_tollerence = 0.02,slope_tollerence = 0.02; //assuming shots are horizontal
 	vector<staple> staples;
 	double slope1, slope2;
-	int size1 = points1.size()>30?30:points1.size();  // move to 20
-	int size2 = points2.size()>30?30:points2.size();
+	int size1 = points1.size()>40?40:points1.size();  // move to 20
+	int size2 = points2.size()>40?40:points2.size();
 	for(int j=1; j < size1 ; j++)
 	{
 		for(int i=0; i < j ; i++)  // curvature of i is greater than j
@@ -813,15 +825,20 @@ vector<staple> Tool::getStaples(vector<point> points1, vector<point> points2,dou
 					dist2 = StructureDistance(points2[m],points2[n]); 
 					slope2 = StructureSlope(points2[m],points2[n]);
 					//changed the slope tollerance value to absolute value
-					if(Tool::getInstance()->approxComp(dist1,dist2,dist1*dist_tollerence) == 0 && Tool::getInstance()->approxComp(slope1,slope2,slope_tollerence)==0 )// && Tool::getInstance()->approxComp(points1[i].curvature + points2[j].curvature, points2[m].curvature + points2[n].curvature, (points2[i].curvature + points2[j].curvature)*curvature_tollerence) == 0)
+					if(Tool::getInstance()->approxComp(dist1,dist2,dist1*dist_tollerence) == 0 && Tool::getInstance()->approxComp(slope1,slope2,slope1*slope_tollerence)==0 )// && Tool::getInstance()->approxComp(points1[i].curvature + points2[j].curvature, points2[m].curvature + points2[n].curvature, (points2[i].curvature + points2[j].curvature)*curvature_tollerence) == 0)
 					{
 						staple tempStaple(points1[i],points1[j],points2[m],points2[n]);//p1's x is greater than p2's x in each staple
 						tempStaple = getFeatureMatch(tempStaple,points1,points2,slope1,slope2,dist_tollerence,slope_tollerence);
 						staples.push_back(tempStaple);
-						if(staples.size() >= 100)
+						/*if(tempStaple.NumOfMatch >= (points1.size()+points2.size())/6){
+							printf("matching found");
+							goto hehe;
+						}*/
+						if(staples.size() >= 100 )
 						{
 							//printf("Staple info::\nimage-1 : \n----------\nx1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",staples[t].p1_img1.x,staples[t].p1_img1.y,staples[t].p2_img1.x,staples[t].p2_img1.y,StructureDistance(staples[t].p1_img1,staples[t].p2_img1));
 							//printf("Staple info::\nimage-2 : \n----------\nx1=%d, y1=%d, X2= %d , Y2= %d :: Distance = %f\n",staples[t].p1_img2.x,staples[t].p1_img2.y,staples[t].p2_img2.x,staples[t].p2_img2.y,StructureDistance(staples[t].p1_img2,staples[t].p2_img2));
+							printf("200 staples checked");
 							goto hehe;
 						}
 					}
@@ -898,7 +915,7 @@ void Tool::rotate(cv::Mat& src, double angle, double scaleFactor, cv::Mat& dst)
 }
 
 //****************************************************************************************************
-vector<edge> Tool::removeSmallCurves(int th, Mat img,vector<edge> edges,vector<point> junction_pts,int curveLenThreshold,int BWThreshold){
+vector<edge> Tool::removeSmallCurves(int th, Mat img,vector<edge> edges,vector<point> junction_pts,int curveLenThreshold,int BWThreshold,char* outputPath1_short){
 	//printf("started removing small curves\n");
 	Mat temp,temp1;
 
@@ -1031,7 +1048,7 @@ endofloop1:;
 	}
 
 	//imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set18_smallEdgesRemoved_temp1.png",temp);
-	imwrite("E:/personal/acads/BTP/images/Set1/scaled2/set2_smallEdgesRemoved_img.png",img);
+	imwrite(outputPath1_short,img);
 	tempEdge.points.clear();
 	for each(point tempPoint in junction_pts){
 		n=Tool::getInstance()->getTotalNeighbours(tempPoint.x,tempPoint.y,img,BWThreshold);
@@ -1050,7 +1067,7 @@ endofloop1:;
 	return edges;
 }
 //****************************************************************************************************
-vector<edge> Tool::GetCurvature(Mat temp,int k,int curveLenThreshold,int BWThreshold){
+vector<edge> Tool::GetCurvature(Mat temp,int k,int curveLenThreshold,int BWThreshold,char* outputPath1_short){
 	vector<edge> edges;  
 	vector<point> junction_pts;
 
@@ -1067,7 +1084,7 @@ vector<edge> Tool::GetCurvature(Mat temp,int k,int curveLenThreshold,int BWThres
 	temp.row(temp.rows-4).setTo(cv::Scalar(0));
 	temp.row(temp.rows-5).setTo(cv::Scalar(0));
 
-	edges = removeSmallCurves(curveLenThreshold,temp,edges,junction_pts,curveLenThreshold,BWThreshold);
+	edges = removeSmallCurves(curveLenThreshold,temp,edges,junction_pts,curveLenThreshold,BWThreshold,outputPath1_short);
 	//imwrite(outputPath1_short,temp);
 	edge junction = edges.back();
 	edges.pop_back();

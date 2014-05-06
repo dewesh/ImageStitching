@@ -28,7 +28,7 @@ public:
 	vector<point> removeLeft(vector<point> points,int p);
 	vector<point> removeRight(vector<point> points,int p);
 	Mat PlotImage(char* imgPath, char* outputPath, vector<point> points,int thickness,int padding, int PixVal);
-	Mat GetEdgeScheleton(char* imgPath,int lowThreshold,int ratio,int kernel_size,int BWThreshold);
+	Mat GetEdgeScheleton(char* imgPath,char* outputPath1_canny,char* outputPath1_thin,int lowThreshold,int ratio,int kernel_size,int BWThreshold);
 	Mat removeCurve(edge tempEdge, Mat temp);
 	template <class T, class U>
 	int approxComp (T, T, U );
@@ -44,8 +44,8 @@ public:
 	vector<staple> getStaples(vector<point> points1, vector<point> points2,double dist_tollerence,double slope_tollerence);
 	void rotateImage(const Mat &input, Mat &output, double alpha, double beta, double gamma, double dx, double dy, double dz, double f);
 	void rotate(cv::Mat& src, double angle, double scaleFactor, cv::Mat& dst);
-	vector<edge> removeSmallCurves(int th, Mat img,vector<edge> edges,vector<point> junction_pts,int curveLenThreshold,int BWThreshold);
-	vector<edge> GetCurvature(Mat temp,int k,int curveLenThreshold,int BWThreshold);
+	vector<edge> removeSmallCurves(int th, Mat img,vector<edge> edges,vector<point> junction_pts,int curveLenThreshold,int BWThreshold,char* outputPath1_short);
+	vector<edge> GetCurvature(Mat temp,int k,int curveLenThreshold,int BWThreshold,char* outputPath1_short);
 	~Tool();
 };
 

@@ -12,6 +12,7 @@ public:
 	point p1_img2;
 	point p2_img2;
 	vector<pair<point,point>> match;
+	vector<pair<double,double>> deltaPos;
 	int NumOfMatch;
 	staple(void);
 	staple(point,point, point, point);

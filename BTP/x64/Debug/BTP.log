@@ -1,39 +1,19 @@
-﻿Build started 4/13/2014 7:52:02 PM.
+﻿Build started 5/5/2014 4:03:11 PM.
      1>Project "C:\Users\deweshiitkgp\documents\visual studio 2010\Projects\BTP\BTP\BTP.vcxproj" on node 2 (build target(s)).
      1>InitializeBuildStatus:
          Creating "x64\Debug\BTP.unsuccessfulbuild" because "AlwaysCreate" was specified.
        ClCompile:
          All outputs are up-to-date.
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /IC:\OpenCV2.3\build\include /IC:\OpenCV2.3\build\include\opencv /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"x64\Debug\BTP.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt Tool.cpp
-         Tool.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /IC:\OpenCV2.3\build\include /IC:\OpenCV2.3\build\include\opencv /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"x64\Debug\BTP.pch" /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt BTP.cpp
+         BTP.cpp
      1>C:\OpenCV2.3\build\include\opencv2/flann/logger.h(70): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(234) : see declaration of 'fopen'
-     1>Tool.cpp(299): warning C4267: '+=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Tool.cpp(365): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Tool.cpp(396): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>Tool.cpp(401): warning C4267: '=' : conversion from 'size_t' to 'int', possible loss of data
-     1>Tool.cpp(429): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
-     1>Tool.cpp(481): warning C4101: 'k' : unreferenced local variable
-     1>Tool.cpp(481): warning C4101: 'l' : unreferenced local variable
-     1>Tool.cpp(583): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(584): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(585): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(602): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(603): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(604): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(635): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(636): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(637): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(673): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(674): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(675): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(716): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(717): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(718): warning C4244: '=' : conversion from 'double' to 'uchar', possible loss of data
-     1>Tool.cpp(801): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>Tool.cpp(802): warning C4267: 'initializing' : conversion from 'size_t' to 'int', possible loss of data
-     1>Tool.cpp(894): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
-     1>Tool.cpp(894): warning C4244: 'argument' : conversion from 'double' to 'float', possible loss of data
+     1>BTP.cpp(150): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>BTP.cpp(151): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>BTP.cpp(291): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>BTP.cpp(321): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\include\stdio.h(304) : see declaration of 'scanf'
+     1>BTP.cpp(125): warning C4101: 'lol1' : unreferenced local variable
        ResourceCompile:
          All outputs are up-to-date.
        ManifestResourceCompile:
@@ -61,4 +41,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:04.64
+Time Elapsed 00:00:06.27
